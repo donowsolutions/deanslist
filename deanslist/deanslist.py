@@ -106,7 +106,6 @@ class DeansList(object):
             data = response_json['data']
             logger.debug('%d rows returned', rows)
 
-        logger.debug(response_json)
         return data
 
 
