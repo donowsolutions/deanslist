@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 __name__ = 'deanslist'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 setup(
     name=__name__,
@@ -24,6 +24,8 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',

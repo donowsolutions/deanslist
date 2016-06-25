@@ -4,6 +4,11 @@ import json
 import requests
 from requests.compat import urljoin
 from requests.exceptions import RequestException
+try:
+    from exceptions import ConnectionError
+except ImportError:
+    class ConnectionError(OSError):
+        pass
 
 import logging
 logger = logging.getLogger(__name__)
@@ -104,7 +109,7 @@ class DeansList(object):
         else:
             rows = response_json['rowcount']
             data = response_json['data']
-            logger.debug('%d rows returned', rows)
+            assert len(data) == rows
 
         return data
 
@@ -113,9 +118,7 @@ class DeansList(object):
         if name.startswith('get_'):
             target = name.partition('_')[-1]
             if target in ENDPOINTS:
-                def wrapper(*args, **kwargs):
-                    return self._get(ENDPOINTS[target], *args, **kwargs)
-                return wrapper
+                return lambda *args, **kwargs: self._get(ENDPOINTS[target], *args, **kwargs)
             else:
                 raise AttributeError('DeansList has no "%s" API endpoint.' % target)
         else:
