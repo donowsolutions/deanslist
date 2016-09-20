@@ -17,31 +17,33 @@ logger = logging.getLogger(__name__)
 # API details
 DEANSLIST_BASE_URL = 'https://{}.deanslistsoftware.com'
 
-API_VERSION_BETA = 'api/beta/export'
-API_VERSION_V1 = 'api/v1'
 
-
-ENDPOINTS = {
-    'behavior': '/api/beta/export/get-behavior-data.php',  # sdt,edt
-    'homework': '/api/beta/export/get-homework-data.php',  # sdt,edt
-    'points': '/api/beta/bank/get-bank-book.php',  #rid (roster id), sid (student id), stus (student id array)
-    'communications': '/api/beta/export/get-comm-data.php',
-    'users': '/api/beta/export/get-users.php',  # show_inactive = Y/N
-    'students': '/api/beta/export/get-students.php',
-    'rosters': '/api/beta/export/get-roster-assignments.php',  # rt = ALL/CL/HR/ADV
-    'referrals': '/api/v1/referrals',  # sdt, edt, sid
-    'suspensions': 'api/v1/suspensions',  # cf  (custom fields) = Y/N
-    'incidents': '/api/v1/incidents',  # cf  (custom fields) = Y/N
-    'followups': '/api/v1/followups',
-    'lists': '/api/v1/lists',  # can get single
-    'terms': '/api/v1/terms',
-    'daily_attendance': '/api/v1/daily-attendance',  # sdt,edt
-    'class_attendance': '/api/v1/class-attendance',  # sdt,edt
-    'rosters': '/api/v1/rosters',   # can get single
-    'coaching_observations': '/api/v1/coaching/observation',  # can get single
-    'coaching_evidence': '/api/v1/coaching/evidence', # can get single
+API_VERSIONS = {
+    'beta': 'api/beta/export/{}.php',
+    'beta-bank': 'api/beta/bank/{}.php'
+    'v1': 'api/v1/{}'
 }
 
+ENDPOINTS = {
+    'behavior': ('beta', 'get-behavior-data'),  # sdt,edt
+    'homework': ('beta', 'get-homework-data'),  # sdt,edt
+    'points': ('beta-bank', 'get-bank-book'),  # rid (roster id), sid (student id), stus (student id array)
+    'communications': ('beta', 'get-comm-data'),
+    'users': ('beta', 'get-users'),  # show_inactive = Y/N
+    'students': ('beta', 'get-students'),
+    'roster_assignments': ('beta', 'get-roster-assignments'),  # rt = ALL/CL/HR/ADV
+    'referrals': ('v1', 'referrals'),  # sdt, edt, sid
+    'suspensions': ('v1', 'suspensions'),  # cf  (custom fields) = Y/N
+    'incidents': ('v1', 'incidents'),  # cf  (custom fields) = Y/N
+    'followups': ('v1', 'followups'),
+    'lists': ('v1', 'lists'),  # can get single
+    'terms': ('v1', 'terms'),
+    'daily_attendance': ('v1', 'daily-attendance'),  # sdt,edt
+    'class_attendance': ('v1', 'class-attendance'),  # sdt,edt
+    'rosters': ('v1', 'rosters'),   # can get single
+    'coaching_observations': ('v1', 'coaching/observation'),  # can get single
+    'coaching_evidence': ('v1', 'coaching/evidence'),  # can get single
+}
 
 
 class DeansList(object):
@@ -113,12 +115,13 @@ class DeansList(object):
 
         return data
 
-
     def __getattr__(self, name):
         if name.startswith('get_'):
             target = name.partition('_')[-1]
             if target in ENDPOINTS:
-                return lambda *args, **kwargs: self._get(ENDPOINTS[target], *args, **kwargs)
+                api_version, endpoint = ENDPOINTS[target]
+                relative_url = API_VERSIONS[api_version].format(endpoint)
+                return lambda *args, **kwargs: self._get(relative_url, *args, **kwargs)
             else:
                 raise AttributeError('DeansList has no "%s" API endpoint.' % target)
         else:
@@ -129,4 +132,3 @@ class DeansList(object):
         for endpoint in ENDPOINTS:
             base.append('get_%s' % endpoint)
         return base
-
