@@ -20,7 +20,7 @@ DEANSLIST_BASE_URL = 'https://{}.deanslistsoftware.com'
 
 API_VERSIONS = {
     'beta': 'api/beta/export/{}.php',
-    'beta-bank': 'api/beta/bank/{}.php'
+    'beta-bank': 'api/beta/bank/{}.php',
     'v1': 'api/v1/{}'
 }
 
