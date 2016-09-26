@@ -18,37 +18,47 @@ logger = logging.getLogger(__name__)
 DEANSLIST_BASE_URL = 'https://{}.deanslistsoftware.com'
 
 
+BETA = 'B'
+BETA_BANK = 'BB'
+V1 = 'V1'
+
 API_VERSIONS = {
-    'beta': 'api/beta/export/{}.php',
-    'beta-bank': 'api/beta/bank/{}.php',
-    'v1': 'api/v1/{}'
+    BETA: 'api/beta/export/{}.php',
+    BETA_BANK: 'api/beta/bank/{}.php',
+    V1: 'api/v1/{}'
 }
 
+RESOURCE = 'R'
+COLLECTION = 'C'
+
 ENDPOINTS = {
-    'behavior': ('beta', 'get-behavior-data'),  # sdt,edt
-    'homework': ('beta', 'get-homework-data'),  # sdt,edt
-    'points': ('beta-bank', 'get-bank-book'),  # rid (roster id), sid (student id), stus (student id array)
-    'communications': ('beta', 'get-comm-data'),
-    'users': ('beta', 'get-users'),  # show_inactive = Y/N
-    'students': ('beta', 'get-students'),
-    'roster_assignments': ('beta', 'get-roster-assignments'),  # rt = ALL/CL/HR/ADV
-    'referrals': ('v1', 'referrals'),  # sdt, edt, sid
-    'suspensions': ('v1', 'suspensions'),  # cf  (custom fields) = Y/N
-    'incidents': ('v1', 'incidents'),  # cf  (custom fields) = Y/N
-    'followups': ('v1', 'followups'),
-    'lists': ('v1', 'lists'),  # can get single
-    'terms': ('v1', 'terms'),
-    'daily_attendance': ('v1', 'daily-attendance'),  # sdt,edt
-    'class_attendance': ('v1', 'class-attendance'),  # sdt,edt
-    'rosters': ('v1', 'rosters'),   # can get single
-    'coaching_observations': ('v1', 'coaching/observation'),  # can get single
-    'coaching_evidence': ('v1', 'coaching/evidence'),  # can get single
+    'behavior': (BETA, 'get-behavior-data', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)'}),
+    'homework': (BETA, 'get-homework-data', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)'}),
+    'points': (BETA_BANK, 'get-bank-book', COLLECTION, {'rid': 'Roster ID', 'sid': 'Student ID', 'stus': 'Array of Student IDs'}),
+    'communications': (BETA, 'get-comm-data', COLLECTION, {}),
+    'users': (BETA, 'get-users', COLLECTION, {'show_inactive': 'Include inactive users (Y/N)'}),
+    'students': (BETA, 'get-students', COLLECTION, {}),
+    'roster_assignments': (BETA, 'get-roster-assignments', COLLECTION, {'rt': 'Roster type identifier (ALL/CL/HR/ADV)'}),
+    'referrals': (V1, 'referrals', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)', 'sid': 'Student ID'}),
+    'suspensions': (V1, 'suspensions', COLLECTION, {'cf': 'Include custom fields (Y/N)'}),
+    'incidents': (V1, 'incidents', COLLECTION, {'cf': 'Include custom fields (Y/N)'}),
+    'followups': (V1, 'followups', COLLECTION, {'iuid': 'Initiated by User ID', 'cuid': 'Created by User ID', 'sid': 'Student ID', 'out': 'Outstanding (Y/N)', 'type': 'Type (REF/COMM/SUSP)'}),
+    'lists': (V1, 'lists', COLLECTION, {}),
+    'list': (V1, 'lists', RESOURCE, {}),
+    'terms': (V1, 'terms', COLLECTION, {}),
+    'daily_attendance': (V1, 'daily-attendance', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)'}),
+    'class_attendance': (V1, 'class-attendance', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)'}),
+    'rosters': (V1, 'rosters', COLLECTION, {'show_inactive': 'Include inactive rosters (Y/N)'}),
+    'roster': (V1, 'rosters', RESOURCE, {}),
+    'coaching_observations': (V1, 'coaching/observation', COLLECTION, {}),
+    'coaching_observation': (V1, 'coaching/observation', RESOURCE, {}),
+    'all_coaching_evidence': (V1, 'coaching/evidence', COLLECTION, {}),
+    'coaching_evidence': (V1, 'coaching/evidence', RESOURCE, {}),
 }
 
 
 class DeansList(object):
-    """
-    """
+
     def __init__(self, subdomain, api_key, user_agent=None):
         self.base_url = DEANSLIST_BASE_URL.format(subdomain)
         self.session = self._establish_session(api_key, user_agent=user_agent)
@@ -59,8 +69,6 @@ class DeansList(object):
         logger.debug('DeansList client initialized for %s!', self.school_name)
 
     def _establish_session(self, api_key, user_agent):
-        """
-        """
 
         headers = {}
         if user_agent:
@@ -75,11 +83,7 @@ class DeansList(object):
         s.headers.update(headers)
         return s
 
-    def _get(self, relative_url, *args, **kwargs):
-        """
-        """
-        for arg in args:
-            relative_url += '/{}'.format(arg)
+    def _get(self, relative_url, **kwargs):
 
         url = urljoin(self.base_url, relative_url)
 
@@ -106,22 +110,35 @@ class DeansList(object):
             logger.exception('Response was not valid JSON!')
             return None
 
-        if args:
-            data = response_json
-        else:
+        if 'rowcount' in response_json and 'data' in response_json:
             rows = response_json['rowcount']
             data = response_json['data']
             assert len(data) == rows
+        else:
+            data = response_json
 
         return data
+
+    def _handle_endpoint(self, endpoint, *args, **kwargs):
+        api_version, endpoint, endpoint_type, parameters = ENDPOINTS[endpoint]
+        relative_url = API_VERSIONS[api_version].format(endpoint)
+        if endpoint_type == RESOURCE:
+            if len(args) == 1:
+                relative_url += '/{}'.format(*args)
+            else:
+                raise ValueError('The %s endpoint returns a single resource and requires a single ID as an argument.' % endpoint)
+
+        for kwarg in kwargs:
+            if kwarg not in parameters:
+                raise ValueError('Unknown parameter %s for endpoint %s.  Valid parameters are: %s' % (kwarg, endpoint, parameters))
+
+        return self._get(relative_url, **kwargs)
 
     def __getattr__(self, name):
         if name.startswith('get_'):
             target = name.partition('_')[-1]
             if target in ENDPOINTS:
-                api_version, endpoint = ENDPOINTS[target]
-                relative_url = API_VERSIONS[api_version].format(endpoint)
-                return lambda *args, **kwargs: self._get(relative_url, *args, **kwargs)
+                return lambda *args, **kwargs: self._handle_endpoint(target, *args, **kwargs)
             else:
                 raise AttributeError('DeansList has no "%s" API endpoint.' % target)
         else:
