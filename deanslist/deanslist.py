@@ -37,7 +37,7 @@ ENDPOINTS = {
     'points': (BETA_BANK, 'get-bank-book', COLLECTION, {'rid': 'Roster ID', 'sid': 'Student ID', 'stus': 'Array of Student IDs'}),
     'communications': (BETA, 'get-comm-data', COLLECTION, {}),
     'users': (BETA, 'get-users', COLLECTION, {'show_inactive': 'Include inactive users (Y/N)'}),
-    'students': (BETA, 'get-students', COLLECTION, {}),
+    'students': (V1, 'students', COLLECTION, {'StudentID': 'Array of Student IDs', 'IncludeParents': 'Include parent contact data (Y/N)', 'IncludeUnenrolled': 'Include unenrolled students (Y/N)'}),
     'roster_assignments': (BETA, 'get-roster-assignments', COLLECTION, {'rt': 'Roster type identifier (ALL/CL/HR/ADV)'}),
     'referrals': (V1, 'referrals', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)', 'sid': 'Student ID'}),
     'suspensions': (V1, 'suspensions', COLLECTION, {'cf': 'Include custom fields (Y/N)'}),
