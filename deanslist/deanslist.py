@@ -83,7 +83,7 @@ class DeansList(object):
         s.headers.update(headers)
         return s
 
-    def _get(self, relative_url, **kwargs):
+    def _get(self, endpoint, relative_url, **kwargs):
 
         url = urljoin(self.base_url, relative_url)
 
@@ -110,13 +110,31 @@ class DeansList(object):
             logger.exception('Response was not valid JSON!')
             return None
 
-        if 'rowcount' in response_json and 'data' in response_json:
+        include_deleted = kwargs.get('IncludeDeleted', 'N')
+            
+        if include_deleted == 'Y':
             rows = response_json['rowcount']
             data = response_json['data']
             assert len(data) == rows
+            
+            deleted_rows = response_json['deleted_rowcount']
+            deleted_data = response_json['deleted_data']
+            assert len(deleted_data) == deleted_rows
+
+            logger.debug('%s returned %s rows of data and %s rows of deleted data', endpoint, rows, deleted_rows)
+
+            return data, deleted_data
+      
+        elif 'rowcount' in response_json and 'data' in response_json:
+            rows = response_json['rowcount']
+            data = response_json['data']
+            assert len(data) == rows
+
+            logger.debug('%s returned %s rows of data', endpoint, rows)
+            
         else:
             data = response_json
-
+        
         return data
 
     def _handle_endpoint(self, endpoint, *args, **kwargs):
@@ -132,7 +150,7 @@ class DeansList(object):
             if kwarg not in parameters:
                 raise ValueError('Unknown parameter %s for endpoint %s.  Valid parameters are: %s' % (kwarg, endpoint, parameters))
 
-        return self._get(relative_url, **kwargs)
+        return self._get(endpoint, relative_url, **kwargs)
 
     def __getattr__(self, name):
         if name.startswith('get_'):
