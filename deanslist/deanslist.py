@@ -121,7 +121,7 @@ class DeansList(object):
             deleted_data = response_json['deleted_data']
             assert len(deleted_data) == deleted_rows
 
-            logger.debug('%s returned %s rows of data and %s rows of deleted data', endpoint, rows, deleted_rows)
+            logger.debug('Returned %s rows of data and %s rows of deleted data', rows, deleted_rows)
 
             return data, deleted_data
       
@@ -130,7 +130,7 @@ class DeansList(object):
             data = response_json['data']
             assert len(data) == rows
 
-            logger.debug('%s returned %s rows of data', endpoint, rows)
+            logger.debug('Returned %s rows of data', rows)
             
         else:
             data = response_json
@@ -150,7 +150,7 @@ class DeansList(object):
             if kwarg not in parameters:
                 raise ValueError('Unknown parameter %s for endpoint %s.  Valid parameters are: %s' % (kwarg, endpoint, parameters))
 
-        return self._get(endpoint, relative_url, **kwargs)
+        return self._get(relative_url, **kwargs)
 
     def __getattr__(self, name):
         if name.startswith('get_'):
