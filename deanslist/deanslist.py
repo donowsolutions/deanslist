@@ -83,7 +83,7 @@ class DeansList(object):
         s.headers.update(headers)
         return s
 
-    def _get(self, endpoint, relative_url, **kwargs):
+    def _get(self, relative_url, **kwargs):
 
         url = urljoin(self.base_url, relative_url)
 
@@ -137,18 +137,18 @@ class DeansList(object):
         
         return data
 
-    def _handle_endpoint(self, endpoint, *args, **kwargs):
-        api_version, endpoint, endpoint_type, parameters = ENDPOINTS[endpoint]
-        relative_url = API_VERSIONS[api_version].format(endpoint)
+    def _handle_endpoint(self, target, *args, **kwargs):
+        api_version, endpoint_url, endpoint_type, parameters = ENDPOINTS[target]
+        relative_url = API_VERSIONS[api_version].format(endpoint_url)
         if endpoint_type == RESOURCE:
             if len(args) == 1:
                 relative_url += '/{}'.format(*args)
             else:
-                raise ValueError('The %s endpoint returns a single resource and requires a single ID as an argument.' % endpoint)
+                raise ValueError('The %s endpoint returns a single resource and requires a single ID as an argument.' % target)
 
         for kwarg in kwargs:
             if kwarg not in parameters:
-                raise ValueError('Unknown parameter %s for endpoint %s.  Valid parameters are: %s' % (kwarg, endpoint, parameters))
+                raise ValueError('Unknown parameter %s for endpoint %s.  Valid parameters are: %s' % (kwarg, target, parameters))
 
         return self._get(relative_url, **kwargs)
 
