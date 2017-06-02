@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 
 __name__ = 'deanslist'
-__version__ = '0.5.2'
+
+__version__ = '0.6'
 
 setup(
     name=__name__,
