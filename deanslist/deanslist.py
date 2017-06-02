@@ -110,9 +110,7 @@ class DeansList(object):
             logger.exception('Response was not valid JSON!')
             return None
 
-        include_deleted = kwargs.get('IncludeDeleted', 'N')
-            
-        if include_deleted == 'Y':
+        if 'deleted_data' in response_json.keys():
             rows = response_json['rowcount']
             data = response_json['data']
             assert len(data) == rows
