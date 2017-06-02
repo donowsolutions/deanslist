@@ -1,4 +1,5 @@
 import os
+from datetime import date
 import pytest
 from deanslist import DeansList
 
@@ -21,6 +22,20 @@ def test_behavior():
     assert len(behavior) > 0
     assert len(deleted_behavior) >= 0 # there might not be any deleted data on the test server
 
+
+def test_behavior_before():
+    behavior = dl_client.get_behavior(UpdatedBefore=date.today())
+    assert len(behavior) > 0
+
+
+def test_homework_before():
+    hw = dl_client.get_homework(UpdatedBefore=date.today())
+    assert len(hw) >= 0
+
+
+def test_communications_before():
+    comm = dl_client.get_communications(UpdatedBefore=date.today())
+    assert len(comm) >= 0
 
 def test_incidents():
     incidents = dl_client.get_incidents(IncludeDeleted='Y')

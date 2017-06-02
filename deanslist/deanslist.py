@@ -32,10 +32,20 @@ RESOURCE = 'R'
 COLLECTION = 'C'
 
 ENDPOINTS = {
-    'behavior': (BETA, 'get-behavior-data', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)', 'UpdatedSince': 'Only include behaviors updated on or after date (YYYY-MM-DD', 'IncludeDeleted': 'Include deleted behaviors (Y/N)'}),
-    'homework': (BETA, 'get-homework-data', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)', 'edt': 'End Date (YYYY-MM-DD)', 'UpdatedSince': 'Only include homework updated on or after date (YYYY-MM-DD', 'IncludeDeleted': 'Include deleted homework (Y/N)'}),
+    'behavior': (BETA, 'get-behavior-data', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)',
+                                                         'edt': 'End Date (YYYY-MM-DD)',
+                                                         'UpdatedSince': 'Only include behaviors updated on or after date (YYYY-MM-DD',
+                                                         'UpdatedBefore': 'Only include behaviors updated on or before date (YYYY-MM-DD)',
+                                                         'IncludeDeleted': 'Include deleted behaviors (Y/N)'}),
+    'homework': (BETA, 'get-homework-data', COLLECTION, {'sdt': 'Start Date (YYYY-MM-DD)',
+                                                         'edt': 'End Date (YYYY-MM-DD)',
+                                                         'UpdatedSince': 'Only include homework updated on or after date (YYYY-MM-DD',
+                                                         'UpdatedBefore': 'Only include homework updated on or before date (YYYY-MM-DD)',
+                                                         'IncludeDeleted': 'Include deleted homework (Y/N)'}),
     'points': (BETA_BANK, 'get-bank-book', COLLECTION, {'rid': 'Roster ID', 'sid': 'Student ID', 'stus': 'Array of Student IDs'}),
-    'communications': (BETA, 'get-comm-data', COLLECTION, {'UpdatedSince': 'Only include communications updated on or after date (YYYY-MM-DD', 'IncludeDeleted': 'Include deleted communications (Y/N)'}),
+    'communications': (BETA, 'get-comm-data', COLLECTION, {'UpdatedSince': 'Only include communications updated on or after date (YYYY-MM-DD',
+                                                           'UpdatedBefore': 'Only include communications updated on or before date (YYYY-MM-DD)',
+                                                           'IncludeDeleted': 'Include deleted communications (Y/N)'}),
     'users': (BETA, 'get-users', COLLECTION, {'show_inactive': 'Include inactive users (Y/N)'}),
     'students': (V1, 'students', COLLECTION, {'StudentID': 'Array of Student IDs', 'IncludeParents': 'Include parent contact data (Y/N)', 'IncludeUnenrolled': 'Include unenrolled students (Y/N)'}),
     'roster_assignments': (BETA, 'get-roster-assignments', COLLECTION, {'rt': 'Roster type identifier (ALL/CL/HR/ADV)'}),
