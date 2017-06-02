@@ -1,7 +1,7 @@
 Deanslist Python API Wrapper
 ============================
 
-##Examples
+## Examples
 
 Minimal example to get all users
 ```
